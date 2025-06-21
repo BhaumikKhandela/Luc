@@ -1,3 +1,4 @@
+"use client";
 import { useAppSelector } from "@/redux/store";
 import { useEffect, useState } from "react";
 import { useMutationData } from "./useMutationData";

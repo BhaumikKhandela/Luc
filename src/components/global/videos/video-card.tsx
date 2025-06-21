@@ -25,8 +25,6 @@ type Props = {
 };
 
 const VideoCard = (props: Props) => {
-  // WIP: wire up date
-
   const daysAgo = Math.floor(
     (new Date().getTime() - props.createdAt.getTime()) / (24 * 60 * 60 * 1000)
   );
@@ -50,7 +48,7 @@ const VideoCard = (props: Props) => {
           />
         </div>
         <Link
-          href={`/preview/${props.id}`}
+          href={`/dashboard/${props.workspaceId}/video/${props.id}`}
           className="hover:bg-[#252525] transition duration-150 flex flex-col justify-between h-full"
         >
           <video

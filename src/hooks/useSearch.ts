@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useQuerydata } from "./useQueryData";
 import { searchUsers } from "@/app/actions/user";
 
-export const useSearch = (key: string, type: "USERS" | "SEARCHINSIDEWORKSPACE") => {
+export const useSearch = (
+  key: string,
+  type: "USERS" | "SEARCHINSIDEWORKSPACE"
+) => {
   const [query, setQuery] = useState("");
   const [debounce, setDebounce] = useState("");
   const [onUsers, setOnUsers] = useState<
@@ -36,7 +39,11 @@ export const useSearch = (key: string, type: "USERS" | "SEARCHINSIDEWORKSPACE") 
       if (type === "USERS") {
         const users = await searchUsers(queryKey[1] as string);
 
-        if (users.status === 200) setOnUsers(users.data ?? null);
+        if (users.status === 200) {
+          setOnUsers(users.data ?? null);
+          return users.data;
+        }
+        return null;
       }
     },
     false

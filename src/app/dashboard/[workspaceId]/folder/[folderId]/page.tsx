@@ -8,10 +8,10 @@ import {
 } from "@tanstack/react-query";
 
 type Props = {
-  params: Promise<{
+  params: {
     workspaceId: string;
     folderId: string;
-  }>;
+  };
 };
 
 async function page({ params }: Props) {

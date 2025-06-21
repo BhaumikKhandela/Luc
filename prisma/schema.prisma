@@ -32,8 +32,24 @@ model User {
    createdAt DateTime @default(now())
    updatedAt DateTime @updatedAt
    workspace WorkSpace[]
+   firstView Boolean @default(false)
+   comment Comment[]
 }
 
+
+model Comment {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  comment String
+  createdAt DateTime @default(now())
+  reply Comment[] @relation("reply")
+  Comment Comment? @relation("reply", fields: [commentId], references: [id])
+  commentId String? @db.Uuid
+  User User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @db.Uuid
+  Video Video? @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId String? @db.Uuid
+  
+}
 
 
 
@@ -90,6 +106,7 @@ model Video{
   workSpaceId String? @db.Uuid
   views Int @default(0)
   summary String?
+  comments Comment[]
 }
  
 

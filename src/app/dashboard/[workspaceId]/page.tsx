@@ -10,7 +10,7 @@ type Props = {
 
 const Page = async ({ params }: Props) => {
   // Await the params before using them
-  const { workspaceId } = await Promise.resolve(params);
+  const { workspaceId } = await params;
 
   return (
     <div>

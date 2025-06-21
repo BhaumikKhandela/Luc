@@ -40,5 +40,4 @@ const VideoPage = async ({ params }: Props) => {
     </HydrationBoundary>
   );
 };
-
 export default VideoPage;
