@@ -13,6 +13,7 @@ type Props = {
 };
 
 const Activities = ({ author, videoId }: Props) => {
+  //WIP: add comment optimistically using tanstack query
   const { data } = useQuerydata(["video-comments"], () =>
     getVideoComments(videoId)
   );
