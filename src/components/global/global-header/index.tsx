@@ -13,11 +13,13 @@ const GlobalHeader = ({ workSpace }: Props) => {
   return (
     <article className="flex flex-col gap-2">
       <span className="text-[#707070] text-xs">
-        {workSpace.type.toLocaleUpperCase()}
+        {pathName.includes("video") ? "" : workSpace.type.toLocaleUpperCase()}
       </span>
       <h1 className="text-4xl font-bold">
-        {pathName && !pathName.includes("folder")
-          ? pathName.charAt(0).toUpperCase() + pathName.slice(1).toLowerCase()
+        {pathName && !pathName.includes("folder") && !pathName.includes("video")
+          ? pathName.charAt(1).toUpperCase() + pathName.slice(2).toLowerCase()
+          : pathName.includes("video")
+          ? ""
           : "My Library"}
       </h1>
     </article>

@@ -24,7 +24,7 @@ const Page = async ({ params }: Props) => {
     );
   }
 
-  if (invite.status === 200) return redirect("/auth/callback");
+  if (invite?.status === 200) return redirect("/auth/callback");
 };
 
 export default Page;
