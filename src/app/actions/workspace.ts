@@ -560,3 +560,30 @@ export const sendEmailForFirstView = async (videoId: string) => {
     return { status: 500, message: "Opps ! something went wrong", data: null };
   }
 };
+
+export const editVideoInfo = async (videoId: string, title: string, description: string) => {
+  try{
+    const user = await currentUser();
+    
+    if(!user){
+        return { status: 401 };
+    }
+
+    const updateVideo = await client.video.update({
+      where:{
+        id: videoId
+      },
+      data:{
+        title,
+        description
+      }
+    });
+
+
+    return { status: 200, message: "Video info updated successfully" };
+
+  }catch(error){
+    console.error('🔴 Error updating video info:', error);
+    return { status: 500, message: "Opps ! something went wrong" };
+  }
+}
