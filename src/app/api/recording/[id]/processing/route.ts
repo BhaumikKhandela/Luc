@@ -74,6 +74,8 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         })
     } catch (error) {
         console.log('🔴Error in processing video', error);
+        
+        return NextResponse.json({ status: 500, message: 'Internal Server Error' });
     }
 
 }

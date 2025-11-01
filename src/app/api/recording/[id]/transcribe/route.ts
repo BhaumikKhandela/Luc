@@ -28,6 +28,8 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         
        return NextResponse.json({ status: 200, message: 'Transcription stored successfully' });
     }
+
+    return NextResponse.json({ status: 400, message: 'Oops! something went wrong.' });
     } catch (error) {
         console.error('Error during transcription:', error);
         return NextResponse.json({ status: 500, message: 'Internal Server Error' });
