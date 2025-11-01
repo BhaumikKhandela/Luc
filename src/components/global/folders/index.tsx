@@ -5,10 +5,12 @@ import React from "react";
 import Folder from "./folder";
 import { FaFolder } from "react-icons/fa6";
 import { useQuerydata } from "@/hooks/useQueryData";
-import { getWorkspaceFolders } from "@/app/actions/workspace";
+import { getVideosWithNoFolder, getWorkspaceFolders } from "@/app/actions/workspace";
 import { useMutationDataState } from "@/hooks/useMutationData";
 import { useDispatch } from "react-redux";
 import { FOLDERS } from "@/redux/slices/folders";
+import { VideosProps } from "@/types/index.type";
+import VideoCard from "../videos/video-card";
 
 type Props = {
   workspaceId: string;
@@ -34,6 +36,12 @@ const Folders = (props: Props) => {
     getWorkspaceFolders(props.workspaceId)
   );
 
+  const { data: videoData, isFetched: videoDataFetched } = useQuerydata(
+    ["videos-without-folder"],
+    () => getVideosWithNoFolder(props.workspaceId)
+  )
+
+  const { status: videoStatus, data: videosWithoutFolder } = videoData as VideosProps;
   const { latestVariable } = useMutationDataState(["create-folder"]);
 
   const { status, data: folders } = data as FolderProps;
@@ -61,8 +69,8 @@ const Folders = (props: Props) => {
           "flex items-center gap-4 overflow-x-auto w-full"
         )}
       >
-        {status !== 200 ? (
-          <p className="text-neutral-300">No Folders in Workspace</p>
+        { (status !== 200 || videoStatus !== 200) ? (
+          <p className="text-neutral-300">No Folders & Videos in Workspace</p>
         ) : (
           <>
             {latestVariable && latestVariable.status === "pending" && (
@@ -82,6 +90,11 @@ const Folders = (props: Props) => {
             key={folder.id}
           />
         ))}
+        { videoDataFetched && videosWithoutFolder.length > 0 && (
+          videosWithoutFolder.map((video) => (
+            <VideoCard key={video.id} workspaceId={props.workspaceId} {...video} />
+          ))
+        )}
       </section>
     </div>
   );

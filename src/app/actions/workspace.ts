@@ -587,3 +587,68 @@ export const editVideoInfo = async (videoId: string, title: string, description:
     return { status: 500, message: "Opps ! something went wrong" };
   }
 }
+
+export const getVideosWithNoFolder = async (workspaceId: string) => {
+  try{
+    const user = await currentUser();
+
+    if(!user){
+      return { status: 401 };
+    }
+
+    const videos = await client.video.findMany({
+      where:{
+        workSpaceId: workspaceId,
+        folderId: null
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        source: true,
+        processing: true,
+        workSpaceId: true,
+        Folder: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        User: {
+          select: {
+            firstname: true,
+            lastname: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      }
+    });
+    
+    if(videos && videos.length > 0){
+      return { status: 200, data: videos };
+    }
+    return { status: 404, data: [] };
+  }catch(error){
+    return { status: 500, data: [] };
+  }
+}
+type Props = {
+  User: {
+    firstname: string | null;
+    lastname: string | null;
+    image: string | null;
+  } | null;
+  id: string;
+  Folder: {
+    id: string;
+    name: string;
+  } | null;
+  createdAt: Date;
+  title: string | null;
+  source: string;
+  processing: boolean;
+  workspaceId: string;
+};
