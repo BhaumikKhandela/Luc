@@ -1,6 +1,7 @@
 import { getNotifications, onAuthenticateUser } from "@/app/actions/user";
 import {
   getAllUserVideos,
+  getVideosWithNoFolder,
   getWorkspaceFolders,
   getWorkSpaces,
   verifyAccessToWorkspace,
@@ -68,6 +69,11 @@ const Layout = async ({ params, children }: Props) => {
     queryKey: ["workspace-folders"],
     queryFn: () => getWorkspaceFolders(workspaceId),
   });
+
+  await query.prefetchQuery({
+    queryKey: ["videos-without-folder"],
+    queryFn: () => getVideosWithNoFolder(workspaceId)
+  })
 
   await query.prefetchQuery({
     queryKey: ["user-videos"],

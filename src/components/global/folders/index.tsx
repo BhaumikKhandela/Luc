@@ -36,15 +36,11 @@ const Folders = (props: Props) => {
     getWorkspaceFolders(props.workspaceId)
   );
 
-  const { data: videoData, isFetched: videoDataFetched } = useQuerydata(
-    ["videos-without-folder"],
-    () => getVideosWithNoFolder(props.workspaceId)
-  )
-
-  const { status: videoStatus, data: videosWithoutFolder } = videoData as VideosProps;
+   const { status, data: folders } = data as FolderProps;
+   console.warn("Folders Data", folders);
   const { latestVariable } = useMutationDataState(["create-folder"]);
 
-  const { status, data: folders } = data as FolderProps;
+ 
 
   if (isFetched && folders) {
     console.log("Statement is true");
@@ -69,8 +65,8 @@ const Folders = (props: Props) => {
           "flex items-center gap-4 overflow-x-auto w-full"
         )}
       >
-        { (status !== 200 || videoStatus !== 200) ? (
-          <p className="text-neutral-300">No Folders & Videos in Workspace</p>
+        { (status !== 200) ? (
+          <p className="text-neutral-300">No Folders in Workspace</p>
         ) : (
           <>
             {latestVariable && latestVariable.status === "pending" && (
@@ -90,11 +86,7 @@ const Folders = (props: Props) => {
             key={folder.id}
           />
         ))}
-        { videoDataFetched && videosWithoutFolder.length > 0 && (
-          videosWithoutFolder.map((video) => (
-            <VideoCard key={video.id} workspaceId={props.workspaceId} {...video} />
-          ))
-        )}
+       
       </section>
     </div>
   );
