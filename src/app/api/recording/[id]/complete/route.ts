@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{id: str
 
     if(completeProcessing){
         console.log('🟢 recording processing completed');
-        return NextResponse.json({ status: 200, message: 'Recording processing completed' });
+        return NextResponse.json({ status: 200, message: 'Recording processing completed', videoId: completeProcessing.id });
     }
 
     return NextResponse.json({ status: 400, message: 'Oops! something went wrong.' });
