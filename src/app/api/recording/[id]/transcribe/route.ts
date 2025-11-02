@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
     if(transcribed){
         console.log('🟢 storing in kb');
         
-       return NextResponse.json({ status: 200, message: 'Transcription stored successfully' });
+       return NextResponse.json({ status: 200, message: 'Transcription stored successfully', videoId: transcribed.id });
     }
 
     return NextResponse.json({ status: 400, message: 'Oops! something went wrong.' });
