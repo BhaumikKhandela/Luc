@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { SelectPeriod } from "./date-select";
 
@@ -23,6 +24,17 @@ const AnalyticsSection = (props: Props) => {
         </div>
         <div className="my-10">
             <h4 className="text-[#BDBDBD] text-lg">Engagement History</h4>
+            <div className="flex gap-5 my-10 border-b-2 border-b-[#BDBDBD] p-5">
+                <div>
+                    <p>Views</p>
+                    <span className="w-full flex justify-center items-center">64</span>
+                </div>
+                <div>
+                    <p>Comments</p>
+                   <span className="w-full flex justify-center items-center">12</span>
+                </div>
+            </div>
+            <EngagementHistory />
              
         </div>
         </div>
