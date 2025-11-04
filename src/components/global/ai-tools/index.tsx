@@ -32,7 +32,7 @@ const AiTools = ({ plan, trial, videoId }: Props) => {
               </p>
             </div>
 
-            {plan === "PRO" ? (
+            {plan === "FREE" ? (
               <div className="flex items-center justify-between gap-4">
                 <Button className=" mt-2 text-sm">
                   <Loader state={false} color="#000">
