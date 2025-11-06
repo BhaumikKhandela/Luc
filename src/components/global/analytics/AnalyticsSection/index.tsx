@@ -1,8 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { SelectPeriod } from "./date-select";
+import EngagementHistory from "../engagement-history";
+import RecentVideoCardSection from "../../videos/recent-video";
 
-type Props = {};
+type Props = {
+    workspaceId: string
+};
 
 export enum Period{
     LAST_7_DAYS = 'Last 7 days',
@@ -13,7 +17,7 @@ export enum Period{
     LIFETIME = 'Lifetime'
 }
 
-const AnalyticsSection = (props: Props) => {
+const AnalyticsSection = ({workspaceId}: Props) => {
 
     const [ period, setPeriod] = useState<Period>(Period.LAST_7_DAYS);
     return (
@@ -22,8 +26,9 @@ const AnalyticsSection = (props: Props) => {
              <h3 className="text-[#BDBDBD] text-xl">Analytics</h3>
                     <SelectPeriod period={period} setPeriod={setPeriod}/>
         </div>
-        <div className="my-10">
-            <h4 className="text-[#BDBDBD] text-lg">Engagement History</h4>
+        <div className="my-10 flex">
+            <div>
+             <h4 className="text-[#BDBDBD] text-lg">Engagement History</h4>
             <div className="flex gap-5 my-10 border-b-2 border-b-[#BDBDBD] p-5">
                 <div>
                     <p>Views</p>
@@ -35,6 +40,14 @@ const AnalyticsSection = (props: Props) => {
                 </div>
             </div>
             <EngagementHistory />
+            
+            </div>
+            <div>
+                <h3 className="text-[#BDBDBD] text-lg">Recent Videos</h3>
+                <div>
+                    <RecentVideoCardSection workspaceId={workspaceId} />
+                </div>
+            </div>
              
         </div>
         </div>

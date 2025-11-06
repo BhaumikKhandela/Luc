@@ -36,7 +36,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartBarDefault() {
+const EngagementHistory =() => {
   return (
     <Card>
       <CardHeader>
@@ -73,3 +73,5 @@ export function ChartBarDefault() {
     </Card>
   )
 }
+
+export default EngagementHistory;

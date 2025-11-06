@@ -123,3 +123,25 @@ export type VideoCommentProps = {
     videoId: string | null;
   }[];
 };
+
+export type RecentVideoTypes = {
+  status: number,
+  data:{
+    id: string,
+  workspaceId: string,
+  title: string,
+  description: string,
+  createdAt: string,
+  comments: {
+    id: string,
+    comment: string
+  }[],
+  views: number,
+  
+  processing: boolean,
+  workSpaceId: string,
+  source: string
+
+  }[] 
+  }
+

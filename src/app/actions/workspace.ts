@@ -635,20 +635,47 @@ export const getVideosWithNoFolder = async (workspaceId: string) => {
     return { status: 500, data: [] };
   }
 }
-type Props = {
-  User: {
-    firstname: string | null;
-    lastname: string | null;
-    image: string | null;
-  } | null;
-  id: string;
-  Folder: {
-    id: string;
-    name: string;
-  } | null;
-  createdAt: Date;
-  title: string | null;
-  source: string;
-  processing: boolean;
-  workspaceId: string;
-};
+export const getRecentVideos = async (workspaceId: string) => {
+try{
+  const user = currentUser();
+
+  if(!user){
+    return { status: 401}
+  }
+
+  const videos = await client.video.findMany({
+    where:{
+      workSpaceId: workspaceId
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      createdAt: true,
+      views: true,
+      source: true,
+      processing: true,
+      workSpaceId: true,
+      comments: {
+        select:{
+          comment: true,
+          id: true
+        }
+      }
+    },
+    orderBy:{
+      createdAt: 'desc'
+    },
+    take:5
+  });
+
+  if(videos && videos.length > 0){
+    return { status: 200 , data: videos}
+  }
+  return { status: 404, data: [] }
+} catch(error) {
+  console.error('🔴 An error occurred while getting recent videos', error);
+
+  return { status: 500, data: [] }
+}
+}
