@@ -679,3 +679,36 @@ try{
   return { status: 500, data: [] }
 }
 }
+
+export const getTotalViewsAndComments = async(workspaceId: string) => {
+  try{
+
+    const user = currentUser();
+
+    if(!user){
+      return { status: 401 }
+    }
+
+    const totalViews = await client.video.aggregate({
+      where: {workSpaceId: workspaceId},
+      _sum: { views: true}
+    });
+
+    const totalComments = await client.comment.count({
+      where: {
+        Video:{
+          workSpaceId: workspaceId
+        }
+      }
+    });
+
+
+    const totalViewCount = totalViews._sum.views || 0;
+
+    return { status: 200, data: { totalViews: totalViewCount, totalComments: totalComments}}
+  
+  } catch(error){
+    console.log('🔴 An error occurred while quering total views and comments');
+    return { status: 500, data: { totalViews: 0, totalComments: 0}}
+  }
+}
