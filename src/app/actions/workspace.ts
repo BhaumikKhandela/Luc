@@ -3,6 +3,16 @@
 import { client } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { sendEmail } from "./user";
+import { getDateRange } from "@/lib/utils";
+
+export enum Period{
+    LAST_7_DAYS = 'Last 7 days',
+    LAST_24_HOURS = 'Last 24 hours',
+    LAST_30_DAYS = 'Last 30 days',
+    LAST_6_MONTHS = 'Last 6 months',
+    LAST_1_YEAR = 'Last 1 year',
+    LIFETIME = 'Lifetime'
+}
 
 export const verifyAccessToWorkspace = async (workspaceId: string) => {
   try {
@@ -680,22 +690,25 @@ try{
 }
 }
 
-export const getTotalViewsAndComments = async(workspaceId: string) => {
+export const getTotalViewsAndComments = async(workspaceId: string, period: Period) => {
   try{
-
-    const user = currentUser();
+  const user = await currentUser();
 
     if(!user){
       return { status: 401 }
     }
 
+    const timePeriod = getDateRange(period);
     const totalViews = await client.video.aggregate({
-      where: {workSpaceId: workspaceId},
+      where: {workSpaceId: workspaceId,
+        ...(timePeriod && { createdAt: timePeriod})
+      },
       _sum: { views: true}
     });
 
     const totalComments = await client.comment.count({
       where: {
+        ...(timePeriod && {createdAt: timePeriod }),
         Video:{
           workSpaceId: workspaceId
         }
