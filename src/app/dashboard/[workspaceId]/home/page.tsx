@@ -1,5 +1,6 @@
-import { getRecentVideos } from "@/app/actions/workspace";
+import { getRecentVideos, getTotalViewsAndComments } from "@/app/actions/workspace";
 import AnalyticsSection from "@/components/global/analytics/AnalyticsSection";
+import { Period } from "@/types/index.type";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
 type Props = {
@@ -17,6 +18,12 @@ const Home = async (props: Props) => {
     queryKey: ["recent-videos"],
     queryFn: () => getRecentVideos(workspaceId)
    });
+
+   await query.prefetchQuery({
+    queryKey: ["video-analytics"],
+    queryFn: () => getTotalViewsAndComments(workspaceId, Period.LAST_7_DAYS),
+  });
+
 
     return (
         <HydrationBoundary state={dehydrate(query)}>

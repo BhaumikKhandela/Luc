@@ -145,3 +145,18 @@ export type RecentVideoTypes = {
   }[] 
   }
 
+export enum Period{
+    LAST_7_DAYS = 'Last 7 days',
+    LAST_24_HOURS = 'Last 24 hours',
+    LAST_30_DAYS = 'Last 30 days',
+    LAST_6_MONTHS = 'Last 6 months',
+    LAST_1_YEAR = 'Last 1 year',
+    LIFETIME = 'Lifetime'
+}
+
+export type VideoAnalytics = {
+  status: number,
+  data: {
+    totalViews: number, totalComments: number
+  }
+}

@@ -56,7 +56,7 @@ const RecentVideoCard = ({
   source,
 }: Props) => {
   return (
-    <div className="border-[1px] border-[#2d2d2d] rounded-lg p-4">
+    <div className="border-[1px] border-[#2d2d2d] rounded-lg p-4 my-5">
       <h4 className="text-[#BDBDBD]">{formatRelativeTime(createdAt)}</h4>
       <p className="text-white text-sm">{formatDate(createdAt)}</p>
 

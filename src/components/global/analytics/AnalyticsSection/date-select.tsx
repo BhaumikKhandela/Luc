@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Period } from "."
+import { Period } from "@/types/index.type";
+
 
 export function SelectPeriod({period, setPeriod}: { period: Period, setPeriod: (period: Period) => void}) {
   return (

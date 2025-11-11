@@ -15,7 +15,7 @@ const DashboardPage = async (props: Props) => {
     return redirect("/auth/sign-in");
   }
 
-  return <div>Dashboard PAge</div>;
+  return <div>Dashboard Page</div>;
 };
 
 export default DashboardPage;

@@ -3,50 +3,47 @@ import React, { useState } from "react";
 import { SelectPeriod } from "./date-select";
 import EngagementHistory from "../engagement-history";
 import RecentVideoCardSection from "../../videos/recent-video";
+import { Period, VideoAnalytics } from "@/types/index.type";
+import { useQuerydata } from "@/hooks/useQueryData";
+import { getTotalViewsAndComments } from "@/app/actions/workspace";
 
 type Props = {
     workspaceId: string
 };
 
-export enum Period{
-    LAST_7_DAYS = 'Last 7 days',
-    LAST_24_HOURS = 'Last 24 hours',
-    LAST_30_DAYS = 'Last 30 days',
-    LAST_6_MONTHS = 'Last 6 months',
-    LAST_1_YEAR = 'Last 1 year',
-    LIFETIME = 'Lifetime'
-}
-
 const AnalyticsSection = ({workspaceId}: Props) => {
 
-    const [ period, setPeriod] = useState<Period>(Period.LAST_7_DAYS);
+    const [period, setPeriod] = useState<Period>(Period.LAST_7_DAYS);
+
+    const { data, isFetched } = useQuerydata(["video-analytics", workspaceId, period], () => getTotalViewsAndComments(workspaceId, period));
+
+    const videoAnalyticsData = data as VideoAnalytics;
+
     return (
        <div>
         <div className="flex justify-between">
-             <h3 className="text-[#BDBDBD] text-xl">Analytics</h3>
+             <h3 className="text-[#BDBDBD] my-4 text-2xl">Analytics</h3>
                     <SelectPeriod period={period} setPeriod={setPeriod}/>
         </div>
-        <div className="my-10 flex">
-            <div>
-             <h4 className="text-[#BDBDBD] text-lg">Engagement History</h4>
-            <div className="flex gap-5 my-10 border-b-2 border-b-[#BDBDBD] p-5">
+        <div className="flex gap-5">
+            <div className="w-2/3 p-5">
+            <div className="flex gap-5 my-2 border-b-2 border-b-[#BDBDBD] pt-5 pb-5 pr-5">
                 <div>
-                    <p>Views</p>
-                    <span className="w-full flex justify-center items-center">64</span>
+                    <p className="text-lg">Views</p>
+                    {isFetched ? <span className="w-full flex justify-center items-center">{videoAnalyticsData.data.totalViews}</span> : (<div className="h-8 w-16 bg-gray-500 rounded-lg animate-pulse mt-2"></div>)}
+                   
                 </div>
                 <div>
-                    <p>Comments</p>
-                   <span className="w-full flex justify-center items-center">12</span>
+                    <p className="text-lg">Comments</p>
+                   { isFetched ? <span className="w-full flex justify-center items-center">{videoAnalyticsData.data.totalComments}</span> : (<div className="h-8 w-16 bg-gray-500 rounded-lg animate-pulse mt-2"></div>)}
                 </div>
             </div>
-            <EngagementHistory />
+            <EngagementHistory period={period} />
             
             </div>
-            <div>
-                <h3 className="text-[#BDBDBD] text-lg">Recent Videos</h3>
-                <div>
+            <div className="w-1/3 p-5">
+                
                     <RecentVideoCardSection workspaceId={workspaceId} />
-                </div>
             </div>
              
         </div>
