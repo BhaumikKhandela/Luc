@@ -85,6 +85,7 @@ model Video {
   processing  Boolean    @default(true)
   workSpaceId String?    @db.Uuid
   views       Int        @default(0)
+  viewEvents  ViewEvent[]
   summary     String?
   comments    Comment[]
   Folder      Folder?    @relation(fields: [folderId], references: [id], onDelete: Cascade)
@@ -130,6 +131,14 @@ model Subscription {
   customerId String?
   User       User?             @relation(fields: [userId], references: [id])
 }
+
+model ViewEvent {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  videoId   String   @db.Uuid
+  createdAt DateTime @default(now())
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
 
 enum PRESET {
   HD
