@@ -1,6 +1,7 @@
 "use client";
 import {
   getPreviewVideo,
+  increaseViewCount,
   sendEmailForFirstView,
 } from "@/app/actions/workspace";
 import { useQuerydata } from "@/hooks/useQueryData";
@@ -25,11 +26,13 @@ type Props = {
 const VideoPreview = ({ videoId }: Props) => {
   const router = useRouter();
 
-  const { data } = useQuerydata(["preview-video"], () =>
+  const { data, isLoading } = useQuerydata(["preview-video", videoId], () =>
     getPreviewVideo(videoId)
   );
+  
+ 
 
-  const notifyFirstView = async () => await sendEmailForFirstView(videoId);
+  
   const { data: video, status, author } = data as VideoProps;
 
   if (status !== 200) router.push("/");
@@ -39,14 +42,77 @@ const VideoPreview = ({ videoId }: Props) => {
   );
 
   useEffect(() => {
+    const increaseView = async () => await increaseViewCount(videoId);
+    const notifyFirstView = async () => await sendEmailForFirstView(videoId);
+
     if (video.views === 0) {
       notifyFirstView();
     }
 
-    return () => {
-      notifyFirstView();
-    };
-  }, []);
+if(!author){
+  increaseView();
+}
+  }, [video,videoId,author]);
+
+  if (isLoading){
+
+    return (
+      <div className="grid grid-cols-1 xl:grid-cols-3 lg:py-10 overflow-y-auto gap-5 animate-pulse">
+        {/* Left Column Skeleton */}
+        <div className="flex flex-col lg:col-span-2 gap-y-10">
+          {/* Title & Subtitle Skeleton */}
+          <div>
+            <div className="h-10 bg-gray-700 rounded w-3/4 mb-4"></div>
+            <div className="flex gap-x-3 mt-2">
+              <div className="h-4 bg-gray-700 rounded w-1/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/6"></div>
+            </div>
+          </div>
+  
+          {/* Video Player Skeleton */}
+          <div className="w-full aspect-video bg-gray-800 rounded-xl"></div>
+  
+          {/* Description Skeleton */}
+          <div className="flex flex-col text-2xl gap-y-4">
+            <div className="h-8 bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+  
+        {/* Right Column Skeleton */}
+        <div className="lg:col-span-1 flex flex-col gap-y-16">
+          {/* Buttons Skeleton */}
+          <div className="flex justify-end gap-x-3 items-center">
+            <div className="h-10 w-24 bg-gray-700 rounded-full"></div>
+            <div className="h-10 w-10 bg-gray-700 rounded-full"></div>
+            <div className="h-10 w-10 bg-gray-700 rounded-full"></div>
+          </div>
+  
+          {/* Tabs Skeleton */}
+          <div className="flex flex-col">
+            {/* Tab Triggers */}
+            <div className="flex space-x-4 border-b border-gray-700 mb-4">
+              <div className="h-8 w-20 bg-gray-700 rounded-t-lg"></div>
+              <div className="h-8 w-24 bg-gray-800 rounded-t-lg"></div>
+              <div className="h-8 w-24 bg-gray-800 rounded-t-lg"></div>
+            </div>
+            {/* Tab Content */}
+            <div className="space-y-4">
+              <div className="h-6 rounded bg-gray-700 w-1/2"></div>
+              <div className="h-4 rounded bg-gray-700 w-full"></div>
+              <div className="h-4 rounded bg-gray-700 w-full"></div>
+              <div className="h-4 rounded bg-gray-700 w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3  lg:py-10 overflow-y-auto gap-5">
@@ -123,8 +189,8 @@ const VideoPreview = ({ videoId }: Props) => {
           >
             <AiTools
               videoId={videoId}
-              trial={video.User?.trial!}
-              plan={video.User?.subscription?.plan!}
+              trial={video.User?.trial ?? false}
+              plan={video.User?.subscription?.plan ?? "FREE"}
             />
 
             <VideoTranscript transcript={video.summary! as string} />
