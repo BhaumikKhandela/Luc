@@ -486,6 +486,31 @@ export const getPreviewVideo = async (videoId: string) => {
   }
 };
 
+export const increaseViewCount = async (videoId: string) => {
+  try{
+
+    await client.video.update({
+      where: {
+        id: videoId
+      },
+      data: {
+        views: {
+          increment: 1
+        },
+        viewEvents: {
+          create: {}
+        }
+      }
+    });
+
+    return { status: 200, message: "View count increased successfully" };
+
+
+  }catch(error){
+    console.error('🔴 An error occurred while increasing view count', error);
+    return { status: 500, message: "Opps ! something went wrong" };
+}
+}
 export const sendEmailForFirstView = async (videoId: string) => {
   try {
     const user = await currentUser();
