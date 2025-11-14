@@ -75,22 +75,22 @@ model Folder {
 }
 
 model Video {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String?    @default("Untitled Video")
-  description String?    @default("No Description")
-  source      String     @unique
-  createdAt   DateTime   @default(now())
-  folderId    String?    @db.Uuid
-  userId      String?    @db.Uuid
-  processing  Boolean    @default(true)
-  workSpaceId String?    @db.Uuid
-  views       Int        @default(0)
-  viewEvents  ViewEvent[]
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String?     @default("Untitled Video")
+  description String?     @default("No Description")
+  source      String      @unique
+  createdAt   DateTime    @default(now())
+  folderId    String?     @db.Uuid
+  userId      String?     @db.Uuid
+  processing  Boolean     @default(true)
+  workSpaceId String?     @db.Uuid
+  views       Int         @default(0)
   summary     String?
   comments    Comment[]
-  Folder      Folder?    @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  User        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  WorkSpace   WorkSpace? @relation(fields: [workSpaceId], references: [id], onDelete: Cascade)
+  Folder      Folder?     @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  User        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  WorkSpace   WorkSpace?  @relation(fields: [workSpaceId], references: [id], onDelete: Cascade)
+  viewEvents  ViewEvent[]
 }
 
 model Member {
@@ -138,7 +138,6 @@ model ViewEvent {
   createdAt DateTime @default(now())
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 }
-
 
 enum PRESET {
   HD

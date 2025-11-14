@@ -473,6 +473,7 @@ export const getPreviewVideo = async (videoId: string) => {
     });
 
     if (video) {
+      console.log("Video found", video);
       return {
         status: 200,
         data: video,
@@ -749,38 +750,38 @@ export const getVideoAnalyticsData = async(workspaceId: string, period: Period) 
         throw new Error('Invalid period specified');
     }
 
-    const query = Prisma.sql`
-    SELECT
-      date_group,
-      SUM(views) as views,
-      SUM(comments) as comments
-    FROM (
-      -- Part 1: Select all view events and mark them as 1 view, 0 comments
+   const query = Prisma.sql`
       SELECT
-        DATE_TRUNC(${truncUnit}, ve."createdAt") as date_group,
-        1 as views,
-        0 as comments
-      FROM "ViewEvent" as ve
-      INNER JOIN "Video" as v on ve."videoId" = v.id
-      WHERE v."workSpaceId" = ${workspaceId}
-      ${startDate ? Prisma.sql`AND ve."createdAt" >= ${startDate}` : Prisma.empty}
+        date_group,
+        SUM(views) as views,
+        SUM(comments) as comments
+      FROM (
+        -- Part 1: Select all view events
+        SELECT
+          DATE_TRUNC(${truncUnit}, ve."createdAt") as date_group,
+          1 as views,
+          0 as comments
+        FROM "ViewEvent" as ve
+        INNER JOIN "Video" as v on ve."videoId" = v.id
+        WHERE v."workSpaceId" = CAST(${workspaceId} AS UUID) -- Correction is here
+        ${startDate ? Prisma.sql`AND ve."createdAt" >= ${startDate}` : Prisma.empty}
 
-      UNION ALL
+        UNION ALL
 
-      -- Part 2: Select all comment events and mark them as 0 views, 1 comment
-      SELECT
-        DATE_TRUNC(${truncUnit}, c."createdAt") as date_group,
-        0 as views,
-        1 as comments
-      FROM "Comment" as c
-      INNER JOIN "Video" as v on c."videoId" = v.id
-      WHERE v."workSpaceId" = ${workspaceId}
-      ${startDate ? Prisma.sql`AND c."createdAt" >= ${startDate}` : Prisma.empty}
-    ) as combined_data
-    WHERE date_group IS NOT NULL
-    GROUP BY date_group
-    ORDER BY date_group ASC;
-  `;
+        -- Part 2: Select all comment events
+        SELECT
+          DATE_TRUNC(${truncUnit}, c."createdAt") as date_group,
+          0 as views,
+          1 as comments
+        FROM "Comment" as c
+        INNER JOIN "Video" as v on c."videoId" = v.id
+        WHERE v."workSpaceId" = CAST(${workspaceId} AS UUID) -- And also here
+        ${startDate ? Prisma.sql`AND c."createdAt" >= ${startDate}` : Prisma.empty}
+      ) as combined_data
+      WHERE date_group IS NOT NULL
+      GROUP BY date_group
+      ORDER BY date_group ASC;
+    `;
 
   const result: { date_group: Date; views: number; comments: number }[] = await client.$queryRaw(query);
 
@@ -802,7 +803,7 @@ export const getVideoAnalyticsData = async(workspaceId: string, period: Period) 
     return { status: 200, data: { analytics, totalViews: totals.totalViews, totalComments: totals.totalComments }}
   
   } catch(error){
-    console.log('🔴 An error occurred while quering total views and comments');
+    console.log('🔴 An error occurred while quering total views and comments', error);
     return { status: 500, data: { totalViews: 0, totalComments: 0}}
   }
 }

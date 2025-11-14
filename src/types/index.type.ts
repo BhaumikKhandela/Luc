@@ -154,9 +154,19 @@ export enum Period{
     LIFETIME = 'Lifetime'
 }
 
+export type AnalyticsDataPoint = {
+  date: string;
+  views: number;
+  comments: number;
+};
+
+export type VideoAnalyticsSuccessData = {
+  analytics: AnalyticsDataPoint[];
+  totalViews: number;
+  totalComments: number;
+};
+
 export type VideoAnalytics = {
   status: number,
-  data: {
-    totalViews: number, totalComments: number
-  }
+  data: VideoAnalyticsSuccessData;
 }

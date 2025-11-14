@@ -38,7 +38,7 @@ const AnalyticsSection = ({workspaceId}: Props) => {
                    { isFetched ? <span className="w-full flex justify-center items-center">{videoAnalyticsData.data.totalComments}</span> : (<div className="h-8 w-16 bg-gray-500 rounded-lg animate-pulse mt-2"></div>)}
                 </div>
             </div>
-            <EngagementHistory period={period} />
+            <EngagementHistory period={period} data={videoAnalyticsData}/>
             
             </div>
             <div className="w-1/3 p-5">

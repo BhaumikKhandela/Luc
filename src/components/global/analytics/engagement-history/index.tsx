@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
+import { FileWarning, TrendingUp } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
 import {
@@ -17,24 +17,15 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Period } from "@/types/index.type"
+import { Period, VideoAnalytics } from "@/types/index.type"
 
 type Props = {
   period: Period
-  data?: { label: string; views: number; comments: number }[]
+  data: VideoAnalytics | null
 }
 
 export const description = "An area chart showing engagement history"
 
-// Placeholder data - will be replaced with real data from props
-const defaultChartData = [
-  { label: "Jan", views: 186, comments: 80 },
-  { label: "Feb", views: 305, comments: 120 },
-  { label: "Mar", views: 237, comments: 95 },
-  { label: "Apr", views: 73, comments: 40 },
-  { label: "May", views: 209, comments: 85 },
-  { label: "Jun", views: 214, comments: 90 },
-]
 
 const chartConfig = {
   views: {
@@ -47,72 +38,90 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-const getPeriodDescription = (period: Period): string => {
-  const now = new Date();
-  let fromDate: Date;
-  
+const formatDateTick = (tick: string, period: Period) => {
+  const date = new Date(tick);
+
+  date.setDate(date.getDate() + 1);
+
   switch (period) {
-    case Period.LAST_24_HOURS:
-      fromDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      break;
-    case Period.LAST_7_DAYS:
-      fromDate = new Date(now);
-      fromDate.setDate(fromDate.getDate() - 7);
-      break;
-    case Period.LAST_30_DAYS:
-      fromDate = new Date(now);
-      fromDate.setDate(fromDate.getDate() - 30);
-      break;
     case Period.LAST_6_MONTHS:
-      fromDate = new Date(now);
-      fromDate.setMonth(fromDate.getMonth() - 6);
-      break;
     case Period.LAST_1_YEAR:
-      fromDate = new Date(now);
-      fromDate.setFullYear(fromDate.getFullYear() - 1);
-      break;
+      return date.toLocaleDateString('en-US', { month: 'short' });
     case Period.LIFETIME:
-      return "All time";
+      return date.toLocaleDateString('en-US', { year: 'numeric' });
     default:
-      return "All time";
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
-  
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
-    });
-  };
-  
-  return `${formatDate(fromDate)} - ${formatDate(now)}`;
 };
 
 const EngagementHistory = ({ period, data }: Props) => {
-  const chartData = data || defaultChartData;
+ if (!data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Engagement History</CardTitle>
+          <CardDescription>Loading analytics data...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[250px] w-full animate-pulse rounded-lg bg-gray-800" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (data.status !== 200) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-destructive">Error</CardTitle>
+          <CardDescription>Could not load engagement history.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex h-[250px] flex-col items-center justify-center gap-4">
+          <FileWarning className="h-12 w-12 text-destructive" />
+          <p className="text-muted-foreground">{data.data.error || "An unknown error occurred."}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { analytics: chartData, totalViews, totalComments } = data.data;
+
+  if (chartData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Engagement History</CardTitle>
+          <CardDescription>{period}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex h-[250px] flex-col items-center justify-center gap-4">
+          <p className="text-muted-foreground">No engagement data available for this period.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Engagement History</CardTitle>
-        <CardDescription>{getPeriodDescription(period)}</CardDescription>
+        <CardDescription>{period}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <AreaChart
             accessibilityLayer
             data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
+            margin={{ left: 12, right: 12 }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="label"
+              dataKey="date" // Use the 'date' field from our data
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => formatDateTick(value, period)} // Use our new formatter
             />
             <ChartTooltip
               cursor={false}
@@ -138,19 +147,20 @@ const EngagementHistory = ({ period, data }: Props) => {
         </ChartContainer>
       </CardContent>
       <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this period <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              {getPeriodDescription(period)}
-            </div>
+        {/* 6. Display real totals in the footer */}
+        <div className="flex w-full items-start gap-x-8 text-sm">
+          <div className="grid gap-1">
+            <div className="text-muted-foreground">Total Views</div>
+            <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
+          </div>
+          <div className="grid gap-1">
+            <div className="text-muted-foreground">Total Comments</div>
+            <div className="text-2xl font-bold">{totalComments.toLocaleString()}</div>
           </div>
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 export default EngagementHistory;

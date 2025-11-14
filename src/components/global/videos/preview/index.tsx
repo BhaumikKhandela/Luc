@@ -27,21 +27,18 @@ const VideoPreview = ({ videoId }: Props) => {
   const router = useRouter();
 
   const { data, isLoading } = useQuerydata(["preview-video", videoId], () =>
-    getPreviewVideo(videoId)
+    getPreviewVideo(videoId),
+  !!videoId
   );
-  
- 
 
-  
-  const { data: video, status, author } = data as VideoProps;
+  const typeData = data as VideoProps | undefined;
+  const video = typeData?.data;
+  const status = typeData?.status;
+  const author = typeData?.author;
 
-  if (status !== 200) router.push("/");
-
-  const daysAgo = Math.floor(
-    (new Date().getTime() - video.createdAt.getTime()) / (24 * 60 * 60 * 1000)
-  );
 
   useEffect(() => {
+    if (!video || isLoading) return;
     const increaseView = async () => await increaseViewCount(videoId);
     const notifyFirstView = async () => await sendEmailForFirstView(videoId);
 
@@ -54,7 +51,12 @@ if(!author){
 }
   }, [video,videoId,author]);
 
-  if (isLoading){
+   if (status && status !== 200) {
+    router.push("/");
+    return null;
+  }
+
+  if (isLoading || !video){
 
     return (
       <div className="grid grid-cols-1 xl:grid-cols-3 lg:py-10 overflow-y-auto gap-5 animate-pulse">
@@ -113,6 +115,10 @@ if(!author){
       </div>
     );
   };
+
+   const daysAgo = Math.floor(
+    (new Date().getTime() - video.createdAt.getTime()) / (24 * 60 * 60 * 1000)
+  );
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3  lg:py-10 overflow-y-auto gap-5">
