@@ -5,7 +5,7 @@ import EngagementHistory from "../engagement-history";
 import RecentVideoCardSection from "../../videos/recent-video";
 import { Period, VideoAnalytics } from "@/types/index.type";
 import { useQuerydata } from "@/hooks/useQueryData";
-import { getTotalViewsAndComments } from "@/app/actions/workspace";
+import { getVideoAnalyticsData } from "@/app/actions/workspace";
 
 type Props = {
     workspaceId: string
@@ -15,7 +15,7 @@ const AnalyticsSection = ({workspaceId}: Props) => {
 
     const [period, setPeriod] = useState<Period>(Period.LAST_7_DAYS);
 
-    const { data, isFetched } = useQuerydata(["video-analytics", workspaceId, period], () => getTotalViewsAndComments(workspaceId, period));
+    const { data, isFetched } = useQuerydata(["video-analytics", workspaceId, period], () => getVideoAnalyticsData(workspaceId, period));
 
     const videoAnalyticsData = data as VideoAnalytics;
 

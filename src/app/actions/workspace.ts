@@ -1,6 +1,6 @@
 "use server";
 
-import { client } from "@/lib/prisma";
+import { client, Prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { sendEmail } from "./user";
 import { getDateRange } from "./lib/utils";
@@ -709,7 +709,7 @@ try{
 }
 
 
-export const getTotalViewsAndComments = async(workspaceId: string, period: Period) => {
+export const getVideoAnalyticsData = async(workspaceId: string, period: Period) => {
   try{
   const user = await currentUser();
 
@@ -717,27 +717,89 @@ export const getTotalViewsAndComments = async(workspaceId: string, period: Perio
       return { status: 401 }
     }
 
-    const timePeriod = getDateRange(period);
-    const totalViews = await client.video.aggregate({
-      where: {workSpaceId: workspaceId,
-        ...(timePeriod && { createdAt: timePeriod})
+    let startDate: Date | null = new Date();
+    let truncUnit: 'day' | 'month' | 'year' = 'day';
+
+    switch(period){
+      case Period.LAST_24_HOURS:
+        startDate.setHours(startDate.getHours() - 24);
+        truncUnit = 'day';
+        break;
+      case Period.LAST_7_DAYS:
+        startDate.setDate(startDate.getDate() - 7);
+        truncUnit = 'day';
+        break;
+      case Period.LAST_30_DAYS:
+        startDate.setDate(startDate.getDate() - 30);
+        truncUnit = 'day';
+        break;
+      case Period.LAST_6_MONTHS:
+        startDate.setMonth(startDate.getMonth() - 6);
+        truncUnit = 'month';
+        break;
+      case Period.LAST_1_YEAR:
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        truncUnit = 'month';
+        break;
+      case Period.LIFETIME:
+        startDate = null;
+        truncUnit = 'year';
+        break;
+      default:
+        throw new Error('Invalid period specified');
+    }
+
+    const query = Prisma.sql`
+    SELECT
+      date_group,
+      SUM(views) as views,
+      SUM(comments) as comments
+    FROM (
+      -- Part 1: Select all view events and mark them as 1 view, 0 comments
+      SELECT
+        DATE_TRUNC(${truncUnit}, ve."createdAt") as date_group,
+        1 as views,
+        0 as comments
+      FROM "ViewEvent" as ve
+      INNER JOIN "Video" as v on ve."videoId" = v.id
+      WHERE v."workSpaceId" = ${workspaceId}
+      ${startDate ? Prisma.sql`AND ve."createdAt" >= ${startDate}` : Prisma.empty}
+
+      UNION ALL
+
+      -- Part 2: Select all comment events and mark them as 0 views, 1 comment
+      SELECT
+        DATE_TRUNC(${truncUnit}, c."createdAt") as date_group,
+        0 as views,
+        1 as comments
+      FROM "Comment" as c
+      INNER JOIN "Video" as v on c."videoId" = v.id
+      WHERE v."workSpaceId" = ${workspaceId}
+      ${startDate ? Prisma.sql`AND c."createdAt" >= ${startDate}` : Prisma.empty}
+    ) as combined_data
+    WHERE date_group IS NOT NULL
+    GROUP BY date_group
+    ORDER BY date_group ASC;
+  `;
+
+  const result: { date_group: Date; views: number; comments: number }[] = await client.$queryRaw(query);
+
+  const analytics = result.map((item) => ({
+    date: item.date_group.toISOString().split('T')[0],
+    views: Number(item.views || 0),
+    comments: Number(item.comments || 0),
+  }));
+
+  const totals = analytics.reduce(
+      (acc, item) => {
+        acc.totalViews += item.views;
+        acc.totalComments += item.comments;
+        return acc;
       },
-      _sum: { views: true}
-    });
+      { totalViews: 0, totalComments: 0 }
+    );
 
-    const totalComments = await client.comment.count({
-      where: {
-        ...(timePeriod && {createdAt: timePeriod }),
-        Video:{
-          workSpaceId: workspaceId
-        }
-      }
-    });
-
-
-    const totalViewCount = totalViews._sum.views || 0;
-
-    return { status: 200, data: { totalViews: totalViewCount, totalComments: totalComments}}
+    return { status: 200, data: { analytics, totalViews: totals.totalViews, totalComments: totals.totalComments }}
   
   } catch(error){
     console.log('🔴 An error occurred while quering total views and comments');
