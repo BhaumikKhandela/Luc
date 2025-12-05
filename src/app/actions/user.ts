@@ -295,6 +295,8 @@ export const getUserProfile = async () => {
       select: {
         image: true,
         id: true,
+        firstname: true,
+        lastname: true,
       },
     });
 
@@ -319,6 +321,9 @@ export const getVideoComments = async (id: string) => {
         },
         User: true,
       },
+      orderBy:{
+        createdAt: 'desc'
+      }
     });
 
     return { status: 200, data: comments };
