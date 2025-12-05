@@ -84,7 +84,7 @@ const RecentVideoCard = ({
         </div>
       </div>
 
-      {/* 🧵 Reddit-like Comment Section */}
+      
       <div className="mt-6 border-t border-[#3a3a3a] pt-4">
         <h3 className="text-white font-semibold mb-3">
           Comments ({comments.length})
@@ -98,7 +98,7 @@ const RecentVideoCard = ({
           {comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex items-start space-x-3 border border-[#333] p-3 rounded-md bg-[#1a1a1a]"
+              className="flex items-center space-x-3 border border-[#333] p-3 rounded-md bg-[#1a1a1a]"
             >
               {/* Placeholder avatar */}
               <div className="w-9 h-9 rounded-full bg-[#2d2d2d] flex items-center justify-center text-sm font-semibold text-gray-400">
@@ -107,11 +107,6 @@ const RecentVideoCard = ({
 
               <div className="flex-1">
                 <p className="text-gray-300 text-sm">{comment.comment}</p>
-                <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                  <button className="hover:text-blue-400">Upvote</button>
-                  <button className="hover:text-blue-400">Downvote</button>
-                  <button className="hover:text-blue-400">Reply</button>
-                </div>
               </div>
             </div>
           ))}
