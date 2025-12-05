@@ -473,7 +473,6 @@ export const getPreviewVideo = async (videoId: string) => {
     });
 
     if (video) {
-      console.log("Video found", video);
       return {
         status: 200,
         data: video,
@@ -490,6 +489,7 @@ export const getPreviewVideo = async (videoId: string) => {
 export const increaseViewCount = async (videoId: string) => {
   try{
 
+    console.log("Increase view called");
     await client.video.update({
       where: {
         id: videoId

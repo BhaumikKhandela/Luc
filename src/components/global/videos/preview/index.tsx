@@ -39,14 +39,17 @@ const VideoPreview = ({ videoId }: Props) => {
 
   useEffect(() => {
     if (!video || isLoading) return;
+    
     const increaseView = async () => await increaseViewCount(videoId);
     const notifyFirstView = async () => await sendEmailForFirstView(videoId);
 
-    if (video.views === 0) {
+    if (!author && video.views === 0) {
+      console.log("Inside notify first view");
       notifyFirstView();
     }
 
 if(!author){
+  console.log("Increase view from client")
   increaseView();
 }
   }, [video,videoId,author]);
