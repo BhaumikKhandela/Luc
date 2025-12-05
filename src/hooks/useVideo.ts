@@ -9,7 +9,7 @@ export const useVideoComment = (videoId: string, commentId?: string) => {
 
   const { status, data: user } = data as {
     status: number;
-    data: { id: string; image: string };
+    data: { id: string; image: string; firstname: string; lastname:string };
   };
 
   const { isPending, mutate } = useMutationData(
@@ -17,7 +17,6 @@ export const useVideoComment = (videoId: string, commentId?: string) => {
     (data: { comment: string }) =>
       createCommentAndReply(user.id, data.comment, videoId, commentId),
     "video-comments",
-    () => reset()
   );
 
   const { register, onFormSubmit, errors, reset } = useZodForm(
@@ -25,5 +24,5 @@ export const useVideoComment = (videoId: string, commentId?: string) => {
     mutate
   );
 
-  return { register, errors, onFormSubmit, isPending };
+  return { register, errors, onFormSubmit, isPending, reset };
 };
