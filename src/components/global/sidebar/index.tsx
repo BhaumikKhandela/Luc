@@ -37,7 +37,7 @@ type Props = {
 };
 
 const Sidebar = ({ activeWorkSpaceId }: Props) => {
-  //WIP: add the upgrade button
+  
   const router = useRouter();
   const pathName = usePathname();
   const dispatch = useDispatch();

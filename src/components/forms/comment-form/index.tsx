@@ -14,13 +14,13 @@ type Props = {
 };
 
 const CommentForm = ({ author, videoId, close, commentId }: Props) => {
-  const { errors, isPending, onFormSubmit, register } = useVideoComment(
+  const { errors, isPending, onFormSubmit, register, reset } = useVideoComment(
     videoId,
     commentId
   );
 
   return (
-    <form className="relative w-full" onSubmit={onFormSubmit}>
+    <form className="relative w-full" onSubmit={() => { onFormSubmit(); reset(); }}>
       <FormGenerator
         register={register}
         errors={errors}

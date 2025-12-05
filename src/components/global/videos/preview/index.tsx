@@ -208,7 +208,6 @@ if(!author){
               videoId={videoId}
             />
             <TabsContent value="Activity">
-              Make changes to your account here.
             </TabsContent>
           </TabMenu>
         </div>
