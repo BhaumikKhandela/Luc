@@ -11,7 +11,8 @@ export const useMutationData = (
   mutationKey: MutationKey,
   mutationFn: MutationFunction<any, any>,
   queryKey?: string,
-  onSuccess?: () => void
+  onSuccess?: () => void,
+  onError?: (error: unknown) => void
 ) => {
   const client = useQueryClient();
 
@@ -32,6 +33,13 @@ export const useMutationData = (
           }
         );
       }
+    },
+
+    onError(error) {
+      onError?.(error);
+      toast("Error", {
+        description: "Something went wrong. Please try again.",
+      })
     },
 
     onSettled: async () => {
