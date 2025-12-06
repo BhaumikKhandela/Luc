@@ -38,7 +38,7 @@ export const useMutationData = (
     onError(error) {
       onError?.(error);
       toast("Error", {
-        description: "Something went wrong. Please try again.",
+        description: ` ${ error ? error.message : "Something went wrong. Please try again." } `,
       })
     },
 
