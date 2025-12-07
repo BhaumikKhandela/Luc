@@ -4,9 +4,11 @@ import { Loader } from "../loader";
 import { useSubscription } from "@/hooks/useSubscription";
 import Script from "next/script";
 
-type Props = {};
+type Props = {
+  buttonName: string;
+};
 
-const PaymentButton = (props: Props) => {
+const PaymentButton = ({buttonName}: Props) => {
   const { processPayment, isProcessing } = useSubscription();
   return (
     <>
@@ -20,7 +22,7 @@ const PaymentButton = (props: Props) => {
         disabled={isProcessing}
       >
         <Loader color="#000" state={isProcessing}>
-          Upgrade
+          {buttonName}
         </Loader>
       </Button>
     </>

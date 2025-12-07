@@ -200,6 +200,7 @@ if(!author){
               videoId={videoId}
               trial={video.User?.trial ?? false}
               plan={video.User?.subscription?.plan ?? "FREE"}
+              clerkId={video.User?.clerkid}
             />
 
             <VideoTranscript transcript={video.summary! as string} />

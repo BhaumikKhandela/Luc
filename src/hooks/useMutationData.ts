@@ -37,13 +37,12 @@ export const useMutationData = (
 
     onError(error) {
       onError?.(error);
-      toast("Error", {
-        description: ` ${ error ? error.message : "Something went wrong. Please try again." } `,
-      })
     },
 
     onSettled: async () => {
+      if(queryKey){
       return await client.invalidateQueries({ queryKey: [queryKey] });
+      }
     },
   });
 

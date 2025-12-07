@@ -230,7 +230,7 @@ const Sidebar = ({ activeWorkSpaceId }: Props) => {
         <GlobalCard
           title="Upgrade to Pro"
           description="Unlock AI features like transcription , AI summary, and more"
-          footer={<PaymentButton />}
+          footer={<PaymentButton buttonName="Upgrade"/>}
         />
       )}
     </div>
