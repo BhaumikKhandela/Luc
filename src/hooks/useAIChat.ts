@@ -1,12 +1,10 @@
 import axios from "axios"
-import { useMutationData } from "./useMutationData"
+import { useMutationData, useMutationDataState } from "./useMutationData"
 import { toast } from "sonner";
 import useZodForm from "./useZodForm";
-import { z } from "zod";
+import { createQuestionSchema } from "@/components/forms/aichat-form/schema";
 
 export const useAIChat = (videoId: string) => {
-
-    const questionSchema = z.string();
 
     const { isPending, mutate } = useMutationData(
         ["ai-chat"],
@@ -14,20 +12,8 @@ export const useAIChat = (videoId: string) => {
            const response = await axios.post(`${process.env.NEXT_PUBLIC_EXPRESS_URL}chat/${videoId}`, {
                 question: data.question
             });
-
-            if (response.status === 400) {
-                throw new Error(`${response.data.message}`);
-            }
-
-            if( response.status === 500 ) {
-                throw new Error("Internal Server Error. Please try again later.");
-            }
-
-            if (response.status === 200) {
-                return {question: response.data.question , answer: response.data.answer };
-            }
-
-            return { question: "", answer: "" };
+            return {question: response.data.question , answer: response.data.answer };
+        
         },
         undefined,
         undefined,
@@ -39,10 +25,12 @@ export const useAIChat = (videoId: string) => {
         }
     );
 
+    const { latestVariable , allMutations: allChats } = useMutationDataState(["ai-chat"]);
+
     const { register, onFormSubmit, errors, reset } = useZodForm(
-     questionSchema,
+     createQuestionSchema,
      mutate
     );
 
-    return { register, errors, onFormSubmit, isPending, reset };
+    return { register, errors, onFormSubmit, isPending, reset, latestVariable, allChats };
 }
