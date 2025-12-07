@@ -16,7 +16,7 @@ export const useMutationData = (
 ) => {
   const client = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, data } = useMutation({
     mutationKey,
     mutationFn,
     onSuccess(data) {
@@ -46,7 +46,7 @@ export const useMutationData = (
     },
   });
 
-  return { mutate, isPending };
+  return { mutate, isPending , data};
 };
 
 export const useMutationDataState = (mutationKey: MutationKey) => {
@@ -56,11 +56,12 @@ export const useMutationDataState = (mutationKey: MutationKey) => {
       return {
         variables: mutation.state.variables as any,
         status: mutation.state.status,
+        data: mutation.state.data as any
       };
     },
   });
 
   const latestVariable = data[data.length - 1];
 
-  return { latestVariable };
+  return { latestVariable, allMutations: data };
 };
