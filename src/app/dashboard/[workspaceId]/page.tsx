@@ -6,7 +6,7 @@ import Folders from "../../../components/global/folders";
 import VideosWithoutFolder from "@/components/global/videos/without-folder";
 
 type Props = {
-  params: { workspaceId: string };
+  params: Promise<{ workspaceId: string }>;
 };
 
 const Page = async ({ params }: Props) => {
@@ -39,9 +39,8 @@ const Page = async ({ params }: Props) => {
         <TabsContent value="videos" className="mt-0">
           <div className="flex flex-col gap-8">
             <Folders workspaceId={workspaceId} />
-            <VideosWithoutFolder workspaceId= {workspaceId} />
+            <VideosWithoutFolder workspaceId={workspaceId} />
           </div>
-         
         </TabsContent>
         <TabsContent value="archive" className="mt-0">
           <div>Archive content goes here</div>

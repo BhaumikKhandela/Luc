@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useQuerydata } from "./useQueryData";
 import { searchUsers } from "@/app/actions/user";
+import { searchContentsOfWorkspace } from "@/app/actions/workspace";
 
 export const useSearch = (
   key: string,
-  type: "USERS" | "SEARCHINSIDEWORKSPACE"
+  type: "USERS" | "SEARCHINSIDEWORKSPACE",
+  workspaceId?: string
 ) => {
   const [query, setQuery] = useState("");
   const [debounce, setDebounce] = useState("");
@@ -21,6 +23,21 @@ export const useSearch = (
       }[]
     | null
   >(null);
+  const [workspaceResult, setWorkspaceResult] = useState<{
+   members: {
+        id: string | undefined;
+        firstname: string | null | undefined;
+        lastname: string | null | undefined;
+    }[];
+    folders: {
+        id: string;
+        name: string;
+    }[];
+    videos: {
+        id: string;
+        title: string | null;
+    }[];
+  } | null>(null);
 
   const onSearchQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -34,7 +51,7 @@ export const useSearch = (
   }, [query]);
 
   const { refetch, isFetching } = useQuerydata(
-    [key, debounce],
+    type === "USERS" ? [key, debounce] : [key, debounce, workspaceId],
     async ({ queryKey }) => {
       if (type === "USERS") {
         const users = await searchUsers(queryKey[1] as string);
@@ -44,6 +61,15 @@ export const useSearch = (
           return users.data;
         }
         return null;
+      } else if (type === "SEARCHINSIDEWORKSPACE" && workspaceId) {
+        const workspaceSearchResult = await searchContentsOfWorkspace(
+          queryKey[1] as string,
+          workspaceId
+        );
+        if (workspaceSearchResult.status === 200) {
+          setWorkspaceResult(workspaceSearchResult.data ?? null);
+          return workspaceSearchResult.data;
+        }
       }
     },
     false
@@ -58,5 +84,5 @@ export const useSearch = (
     };
   }, [debounce]);
 
-  return { onSearchQuery, query, isFetching, onUsers };
+  return { onSearchQuery, query, isFetching, onUsers, workspaceResult };
 };

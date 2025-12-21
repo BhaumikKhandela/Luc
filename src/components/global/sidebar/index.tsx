@@ -238,7 +238,7 @@ const Sidebar = ({ activeWorkSpaceId }: Props) => {
 
   return (
     <div className="h-full">
-      <InfoBar />
+      <InfoBar workspaceId={activeWorkSpaceId}/>
       <div className="md:hidden fixed my-4">
         <Sheet>
           <SheetTrigger asChild className="ml-2 ">

@@ -6,7 +6,6 @@ import { sendEmail } from "./user";
 import { getDateRange } from "./lib/utils";
 import { Period } from "@/types/index.type";
 
-
 export const verifyAccessToWorkspace = async (workspaceId: string) => {
   try {
     const user = await currentUser();
@@ -217,6 +216,7 @@ export const searchContentsOfWorkspace = async (
           select: {
             User: {
               select: {
+                id: true,
                 firstname: true,
                 lastname: true,
               },
@@ -224,10 +224,10 @@ export const searchContentsOfWorkspace = async (
           },
         },
         folders: {
-          select: { name: true },
+          select: { id: true, name: true },
         },
         videos: {
-          select: { title: true },
+          select: { id: true, title: true },
         },
       },
     });
@@ -235,11 +235,18 @@ export const searchContentsOfWorkspace = async (
     if (searchResult) {
       const formattedResult = {
         members: searchResult.members.map((item) => ({
+          id: item.User?.id,
           firstname: item.User?.firstname,
           lastname: item.User?.lastname,
         })),
-        folders: searchResult.folders.map((item) => item.name),
-        videos: searchResult.videos.map((item) => item.title),
+        folders: searchResult.folders.map((item) => ({
+          id: item.id,
+          name: item.name,
+        })),
+        videos: searchResult.videos.map((item) => ({
+          id: item.id,
+          title: item.title,
+        })),
       };
 
       return {
@@ -249,12 +256,12 @@ export const searchContentsOfWorkspace = async (
       };
     }
 
-    return { status: 404, message: "No data found", data: [] };
+    return { status: 404, message: "No data found", data: null };
   } catch (error) {
     return {
       status: 500,
       message: "Internal Server Error",
-      data: [],
+      data: null,
       error: error,
     };
   }
@@ -487,31 +494,28 @@ export const getPreviewVideo = async (videoId: string) => {
 };
 
 export const increaseViewCount = async (videoId: string) => {
-  try{
-
+  try {
     console.log("Increase view called");
     await client.video.update({
       where: {
-        id: videoId
+        id: videoId,
       },
       data: {
         views: {
-          increment: 1
+          increment: 1,
         },
         viewEvents: {
-          create: {}
-        }
-      }
+          create: {},
+        },
+      },
     });
 
     return { status: 200, message: "View count increased successfully" };
-
-
-  }catch(error){
-    console.error('🔴 An error occurred while increasing view count', error);
+  } catch (error) {
+    console.error("🔴 An error occurred while increasing view count", error);
     return { status: 500, message: "Opps ! something went wrong" };
-}
-}
+  }
+};
 export const sendEmailForFirstView = async (videoId: string) => {
   try {
     const user = await currentUser();
@@ -590,45 +594,47 @@ export const sendEmailForFirstView = async (videoId: string) => {
   }
 };
 
-export const editVideoInfo = async (videoId: string, title: string, description: string) => {
-  try{
+export const editVideoInfo = async (
+  videoId: string,
+  title: string,
+  description: string
+) => {
+  try {
     const user = await currentUser();
-    
-    if(!user){
-        return { status: 401 };
+
+    if (!user) {
+      return { status: 401 };
     }
 
     const updateVideo = await client.video.update({
-      where:{
-        id: videoId
+      where: {
+        id: videoId,
       },
-      data:{
+      data: {
         title,
-        description
-      }
+        description,
+      },
     });
 
-
     return { status: 200, message: "Video info updated successfully" };
-
-  }catch(error){
-    console.error('🔴 Error updating video info:', error);
+  } catch (error) {
+    console.error("🔴 Error updating video info:", error);
     return { status: 500, message: "Opps ! something went wrong" };
   }
-}
+};
 
 export const getVideosWithNoFolder = async (workspaceId: string) => {
-  try{
+  try {
     const user = await currentUser();
 
-    if(!user){
+    if (!user) {
       return { status: 401 };
     }
 
     const videos = await client.video.findMany({
-      where:{
+      where: {
         workSpaceId: workspaceId,
-        folderId: null
+        folderId: null,
       },
       select: {
         id: true,
@@ -653,104 +659,106 @@ export const getVideosWithNoFolder = async (workspaceId: string) => {
       },
       orderBy: {
         createdAt: "asc",
-      }
+      },
     });
-    
-    if(videos && videos.length > 0){
+
+    if (videos && videos.length > 0) {
       return { status: 200, data: videos };
     }
     return { status: 404, data: [] };
-  }catch(error){
+  } catch (error) {
     return { status: 500, data: [] };
   }
-}
+};
 export const getRecentVideos = async (workspaceId: string) => {
-try{
-  const user = currentUser();
+  try {
+    const user = currentUser();
 
-  if(!user){
-    return { status: 401}
+    if (!user) {
+      return { status: 401 };
+    }
+
+    const videos = await client.video.findMany({
+      where: {
+        workSpaceId: workspaceId,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        createdAt: true,
+        views: true,
+        source: true,
+        processing: true,
+        workSpaceId: true,
+        comments: {
+          select: {
+            comment: true,
+            id: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 5,
+    });
+
+    if (videos && videos.length > 0) {
+      return { status: 200, data: videos };
+    }
+    return { status: 404, data: [] };
+  } catch (error) {
+    console.error("🔴 An error occurred while getting recent videos", error);
+
+    return { status: 500, data: [] };
   }
+};
 
-  const videos = await client.video.findMany({
-    where:{
-      workSpaceId: workspaceId
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      createdAt: true,
-      views: true,
-      source: true,
-      processing: true,
-      workSpaceId: true,
-      comments: {
-        select:{
-          comment: true,
-          id: true
-        }
-      }
-    },
-    orderBy:{
-      createdAt: 'desc'
-    },
-    take:5
-  });
+export const getVideoAnalyticsData = async (
+  workspaceId: string,
+  period: Period
+) => {
+  try {
+    const user = await currentUser();
 
-  if(videos && videos.length > 0){
-    return { status: 200 , data: videos}
-  }
-  return { status: 404, data: [] }
-} catch(error) {
-  console.error('🔴 An error occurred while getting recent videos', error);
-
-  return { status: 500, data: [] }
-}
-}
-
-
-export const getVideoAnalyticsData = async(workspaceId: string, period: Period) => {
-  try{
-  const user = await currentUser();
-
-    if(!user){
-      return { status: 401 }
+    if (!user) {
+      return { status: 401 };
     }
 
     let startDate: Date | null = new Date();
-    let truncUnit: 'day' | 'month' | 'year' = 'day';
+    let truncUnit: "day" | "month" | "year" = "day";
 
-    switch(period){
+    switch (period) {
       case Period.LAST_24_HOURS:
         startDate.setHours(startDate.getHours() - 24);
-        truncUnit = 'day';
+        truncUnit = "day";
         break;
       case Period.LAST_7_DAYS:
         startDate.setDate(startDate.getDate() - 7);
-        truncUnit = 'day';
+        truncUnit = "day";
         break;
       case Period.LAST_30_DAYS:
         startDate.setDate(startDate.getDate() - 30);
-        truncUnit = 'day';
+        truncUnit = "day";
         break;
       case Period.LAST_6_MONTHS:
         startDate.setMonth(startDate.getMonth() - 6);
-        truncUnit = 'month';
+        truncUnit = "month";
         break;
       case Period.LAST_1_YEAR:
         startDate.setFullYear(startDate.getFullYear() - 1);
-        truncUnit = 'month';
+        truncUnit = "month";
         break;
       case Period.LIFETIME:
         startDate = null;
-        truncUnit = 'year';
+        truncUnit = "year";
         break;
       default:
-        throw new Error('Invalid period specified');
+        throw new Error("Invalid period specified");
     }
 
-   const query = Prisma.sql`
+    const query = Prisma.sql`
       SELECT
         date_group,
         SUM(views) as views,
@@ -764,7 +772,11 @@ export const getVideoAnalyticsData = async(workspaceId: string, period: Period) 
         FROM "ViewEvent" as ve
         INNER JOIN "Video" as v on ve."videoId" = v.id
         WHERE v."workSpaceId" = CAST(${workspaceId} AS UUID) -- Correction is here
-        ${startDate ? Prisma.sql`AND ve."createdAt" >= ${startDate}` : Prisma.empty}
+        ${
+          startDate
+            ? Prisma.sql`AND ve."createdAt" >= ${startDate}`
+            : Prisma.empty
+        }
 
         UNION ALL
 
@@ -776,22 +788,27 @@ export const getVideoAnalyticsData = async(workspaceId: string, period: Period) 
         FROM "Comment" as c
         INNER JOIN "Video" as v on c."videoId" = v.id
         WHERE v."workSpaceId" = CAST(${workspaceId} AS UUID) -- And also here
-        ${startDate ? Prisma.sql`AND c."createdAt" >= ${startDate}` : Prisma.empty}
+        ${
+          startDate
+            ? Prisma.sql`AND c."createdAt" >= ${startDate}`
+            : Prisma.empty
+        }
       ) as combined_data
       WHERE date_group IS NOT NULL
       GROUP BY date_group
       ORDER BY date_group ASC;
     `;
 
-  const result: { date_group: Date; views: number; comments: number }[] = await client.$queryRaw(query);
+    const result: { date_group: Date; views: number; comments: number }[] =
+      await client.$queryRaw(query);
 
-  const analytics = result.map((item) => ({
-    date: item.date_group.toISOString().split('T')[0],
-    views: Number(item.views || 0),
-    comments: Number(item.comments || 0),
-  }));
+    const analytics = result.map((item) => ({
+      date: item.date_group.toISOString().split("T")[0],
+      views: Number(item.views || 0),
+      comments: Number(item.comments || 0),
+    }));
 
-  const totals = analytics.reduce(
+    const totals = analytics.reduce(
       (acc, item) => {
         acc.totalViews += item.views;
         acc.totalComments += item.comments;
@@ -800,10 +817,19 @@ export const getVideoAnalyticsData = async(workspaceId: string, period: Period) 
       { totalViews: 0, totalComments: 0 }
     );
 
-    return { status: 200, data: { analytics, totalViews: totals.totalViews, totalComments: totals.totalComments }}
-  
-  } catch(error){
-    console.log('🔴 An error occurred while quering total views and comments', error);
-    return { status: 500, data: { totalViews: 0, totalComments: 0}}
+    return {
+      status: 200,
+      data: {
+        analytics,
+        totalViews: totals.totalViews,
+        totalComments: totals.totalComments,
+      },
+    };
+  } catch (error) {
+    console.log(
+      "🔴 An error occurred while quering total views and comments",
+      error
+    );
+    return { status: 500, data: { totalViews: 0, totalComments: 0 } };
   }
-}
+};
