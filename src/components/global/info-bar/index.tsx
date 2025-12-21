@@ -33,4 +33,4 @@ const InfoBar = (props: Props) => {
   );
 };
 
-export default InfoBar; // Add this line
+export default InfoBar; 

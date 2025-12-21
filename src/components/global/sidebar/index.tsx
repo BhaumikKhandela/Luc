@@ -55,7 +55,7 @@ const Sidebar = ({ activeWorkSpaceId }: Props) => {
     isFetched: notificationFetched,
   } = useQuerydata(["user-notifications"], getNotifications);
 
-  console.log("Workspace data:", workspaceData, "Fetched:", workspaceFetched);
+  
 
   // Safely access workspace data only after it's fetched
   const workspace =
