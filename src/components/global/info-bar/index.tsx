@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, UploadIcon, User } from "lucide-react";
 import { PiVideoCameraFill } from "react-icons/pi";
-import React from "react";
+import { useEffect, useRef, useState } from "react";
 import { UserButton } from "@clerk/nextjs";
 import {
   Command,
@@ -16,15 +16,16 @@ import { useSearch } from "@/hooks/useSearch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SearchResultsPortal } from "./search-result-portal";
 import { useRouter } from "next/navigation";
+import { SearchResultsSkeleton } from "./search-result-skeleton";
 
 type Props = {
   workspaceId: string;
 };
 
 const InfoBar = ({ workspaceId }: Props) => {
-  const searchRef = React.useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const [position, setPosition] = React.useState<{
+  const [position, setPosition] = useState<{
     top: number;
     left: number;
     width: number;
@@ -47,7 +48,7 @@ const InfoBar = ({ workspaceId }: Props) => {
     );
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!searchRef.current) return;
 
     const rect = searchRef.current.getBoundingClientRect();
@@ -74,7 +75,7 @@ const InfoBar = ({ workspaceId }: Props) => {
             onChange={onSearchQuery}
           />
         </div>
-        {workspaceResult && query && (
+        {query && (
           <SearchResultsPortal>
             <div
               className="absolute z-[1000]"
@@ -86,60 +87,68 @@ const InfoBar = ({ workspaceId }: Props) => {
             >
               <Command className="rounded-xl border bg-background shadow-2xl">
                 <CommandList className="max-h-[60vh] overflow-y-auto">
-                  <CommandEmpty>No results found.</CommandEmpty>
+                  {isFetching ? (
+                    <SearchResultsSkeleton />
+                  ) : !workspaceResult ? (
+                    <CommandEmpty>No results found.</CommandEmpty>
+                  ) : (
+                    <>
+                      <CommandEmpty>No results found.</CommandEmpty>
 
-                  {/* USERS */}
-                  <CommandGroup heading="Users">
-                    {workspaceResult.members.map((member) => (
-                      <CommandItem
-                        key={member.id}
-                        value={`user:${member.id}`}
-                        className="flex gap-3 my-1 cursor-pointer"
-                      >
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={""} />
-                          <AvatarFallback>
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm capitalize">
-                          {member.firstname} {member.lastname}
-                        </span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                      {/* USERS */}
+                      <CommandGroup heading="Users">
+                        {workspaceResult.members.map((member) => (
+                          <CommandItem
+                            key={member.id}
+                            value={`user:${member.id}`}
+                            className="flex gap-3 my-1 cursor-pointer"
+                          >
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={""} />
+                              <AvatarFallback>
+                                <User className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm capitalize">
+                              {member.firstname} {member.lastname}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
 
-                  <CommandSeparator />
+                      <CommandSeparator />
 
-                  {/* VIDEOS */}
-                  <CommandGroup heading="Videos">
-                    {workspaceResult.videos.map((video) => (
-                      <CommandItem
-                        key={video.id}
-                        value={`video:${video.id}`}
-                        onSelect={() => handleVideoClick(video.id)}
-                        className="my-1 cursor-pointer"
-                      >
-                        <span className="text-sm">{video.title}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                      {/* VIDEOS */}
+                      <CommandGroup heading="Videos">
+                        {workspaceResult.videos.map((video) => (
+                          <CommandItem
+                            key={video.id}
+                            value={`video:${video.id}`}
+                            onSelect={() => handleVideoClick(video.id)}
+                            className="my-1 cursor-pointer"
+                          >
+                            <span className="text-sm">{video.title}</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
 
-                  <CommandSeparator />
+                      <CommandSeparator />
 
-                  {/* FOLDERS */}
-                  <CommandGroup heading="Folders">
-                    {workspaceResult.folders.map((folder) => (
-                      <CommandItem
-                        key={folder.id}
-                        value={`folder:${folder.id}`}
-                        onSelect={() => handleFolderClick(folder.id)}
-                        className="my-1 cursor-pointer"
-                      >
-                        <span className="text-sm">{folder.name}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                      {/* FOLDERS */}
+                      <CommandGroup heading="Folders">
+                        {workspaceResult.folders.map((folder) => (
+                          <CommandItem
+                            key={folder.id}
+                            value={`folder:${folder.id}`}
+                            onSelect={() => handleFolderClick(folder.id)}
+                            className="my-1 cursor-pointer"
+                          >
+                            <span className="text-sm">{folder.name}</span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </>
+                  )}
                 </CommandList>
               </Command>
             </div>
@@ -161,5 +170,4 @@ const InfoBar = ({ workspaceId }: Props) => {
     </header>
   );
 };
-
 export default InfoBar;

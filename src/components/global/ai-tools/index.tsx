@@ -39,7 +39,6 @@ const AiTools = ({ plan, trial, videoId, clerkId }: Props) => {
                     Try now
                   </Loader>
                 </Button>
-                {/* {WIP: Pay button} */}
 
                 <PaymentButton buttonName="Pay Now" />
               </div>
