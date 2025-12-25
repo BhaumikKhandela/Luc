@@ -7,38 +7,20 @@ type Props = {};
 
 const LandingPageNavBar = (props: Props) => {
   return (
-    <div className="flex width-full justify-between items-center py-5 bg-black">
-      <div className="text-3xl font-semibold flex items-center gap-x-3">
-        <Menu className="w-8 h-8" />
+    <div className="sticky top-0 z-50 flex width-full justify-between items-center py-5 bg-gradient-to-b from-pink-500/5 to-transparent">
+      <div className="text-3xl mx-2 font-semibold flex items-center gap-x-3">
         <Image alt="logo" src="/opal-logo.svg" width={40} height={40} />
         Opal
       </div>
-      <div className="hidden gap-x-10 items-center lg:flex">
-        <Link
-          href="/"
-          className="bg-[#7320DD] py-2 px-5  text-base rounded-full hover:bg-[#7320DD]/80"
-        >
-          Home
-        </Link>
-        <Link
-          href="/"
-          className="bg-[#7320DD] py-2 px-5  text-base rounded-full hover:bg-[#7320DD]/80"
-        >
-          Pricing
-        </Link>
-        <Link
-          href="/"
-          className="bg-[#7320DD] py-2 px-5  text-base rounded-full hover:bg-[#7320DD]/80"
-        >
-          Contact
+     
+      <div className="mx-2">
+        <Link href="/auth/sign-in">
+          <Button className="text-base flex gap-x-2">
+            <User fill="#000" />
+            Login
+          </Button>
         </Link>
       </div>
-      <Link href="/auth/sign-in">
-        <Button className="text-base flex gap-x-2">
-          <User fill="#000" />
-          Login
-        </Button>
-      </Link>
     </div>
   );
 };
