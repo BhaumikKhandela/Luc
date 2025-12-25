@@ -9,10 +9,12 @@ export const useAIChat = (videoId: string) => {
     const { isPending, mutate } = useMutationData(
         ["ai-chat"],
         async (data: { question: string }) => {
+            console.log("Tried to hit endpoint")
            const response = await axios.post(`${process.env.NEXT_PUBLIC_EXPRESS_URL}chat/${videoId}`, {
                 question: data.question
             });
-            return {question: response.data.question , answer: response.data.answer };
+            console.log("This is chat response ", response.data)
+            return {question: response.data.data.question , answer: response.data.data.answer };
         
         },
         undefined,

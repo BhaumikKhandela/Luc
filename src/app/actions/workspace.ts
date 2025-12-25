@@ -692,10 +692,15 @@ export const getRecentVideos = async (workspaceId: string) => {
         processing: true,
         workSpaceId: true,
         comments: {
+          take: 5,
+          orderBy:{
+            createdAt: "desc"
+          },
           select: {
             comment: true,
             id: true,
           },
+          
         },
       },
       orderBy: {

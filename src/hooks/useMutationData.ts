@@ -24,11 +24,15 @@ export const useMutationData = (
         onSuccess();
 
         return toast(
-          data?.status === 200 || data?.status === 201 ? "Success" : "Error",
+          data?.status === 200 || data?.status === 201 || data?.status === 204
+            ? "Success"
+            : "Error",
           {
             description:
               typeof data?.data === "string"
                 ? data.data
+                : data?.message
+                ? data.message
                 : "Operation completed successfully",
           }
         );
@@ -40,13 +44,13 @@ export const useMutationData = (
     },
 
     onSettled: async () => {
-      if(queryKey){
-      return await client.invalidateQueries({ queryKey: [queryKey] });
+      if (queryKey) {
+        return await client.invalidateQueries({ queryKey: [queryKey] });
       }
     },
   });
 
-  return { mutate, isPending , data};
+  return { mutate, isPending, data };
 };
 
 export const useMutationDataState = (mutationKey: MutationKey) => {
@@ -56,7 +60,7 @@ export const useMutationDataState = (mutationKey: MutationKey) => {
       return {
         variables: mutation.state.variables as any,
         status: mutation.state.status,
-        data: mutation.state.data as any
+        data: mutation.state.data as any,
       };
     },
   });

@@ -91,7 +91,7 @@ const FormGenerator = ({
         <Label className="flex flex-col gap-2" htmlFor={`input-${label}`}>
           {label && label}
           <Textarea
-            className="bg-transparent border-gray-700 text-gray-800"
+            className="bg-transparent border-gray-700 text-white"
             id={`input-${label}`}
             placeholder={placeholder}
             rows={lines}

@@ -6,50 +6,44 @@ import { Bot, FileTextIcon, Pencil, StarsIcon } from "lucide-react";
 import PaymentButton from "../payment-button";
 import { useAuth } from "@clerk/nextjs";
 import { AiChatbot } from "./aichatbot";
+import { useTrial } from "@/hooks/useTrial";
 
 type Props = {
   plan: "PRO" | "FREE";
   trial: boolean;
   videoId: string;
   clerkId: string | undefined;
+  author: boolean | undefined;
 };
 
-const AiTools = ({ plan, trial, videoId, clerkId }: Props) => {
+const AiTools = ({ plan, trial, videoId, clerkId, author }: Props) => {
   //WIP: setup the ai hook
 
-  const { userId } = useAuth();
-
+  const { isPending, mutate } = useTrial();
   return (
     <TabsContent value="Ai tools">
       {" "}
-      <div className="p-5 bg-[#1D1D1D] rounded-xl flex flex-col gap-y-10">
+      <div className="p-5 bg-[#1D1D1D] rounded-xl ">
         <div className="flex flex-col items-center gap-10">
-          <div className="flex justify-evenly items-center gap-4">
-            <div className="w-8/12">
-              <h2 className="text-3xl font-bold">Ai Tools</h2>
-              <p className="text-[#BDBDBD] ">
-                Taking your video to the next <br /> step with power of AI!
-              </p>
-            </div>
-
-            {plan === "FREE" ? (
+          <div className="">
+            {author && plan === "FREE" ? (
               <div className="flex items-center justify-between gap-4">
-                <Button className=" mt-2 text-sm">
-                  <Loader state={false} color="#000">
+                <Button
+                  className=" mt-2 text-sm"
+                  onClick={() => {
+                    mutate(videoId);
+                  }}
+                >
+                  <Loader state={isPending} color="#000">
                     Try now
                   </Loader>
                 </Button>
-
-                <PaymentButton buttonName="Pay Now" />
+                <div className="mt-2">
+                  <PaymentButton buttonName="Pay Now" />
+                </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between gap-4">
-                <Button className=" mt-2 text-sm">
-                  <Loader state={false} color="#000">
-                    Generate Now
-                  </Loader>
-                </Button>
-              </div>
+              <div></div>
             )}
           </div>
 
@@ -64,7 +58,7 @@ const AiTools = ({ plan, trial, videoId, clerkId }: Props) => {
           </div>
         </div> */}
 
-          {userId === clerkId && plan === "FREE" ? (
+          {author && plan === "FREE" ? (
             <div className="border-[1px] rounded-xl  p-4 gap-4 flex flex-col bg-[#1b0f1b7f]">
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold text-[#a22fe0]"> Opal Ai</h2>
@@ -109,7 +103,7 @@ const AiTools = ({ plan, trial, videoId, clerkId }: Props) => {
           ) : plan === "FREE" ? (
             <div>AI features are not enabled yet for this video.</div>
           ) : (
-            <AiChatbot  videoId={videoId}/>
+            <AiChatbot videoId={videoId} />
           )}
         </div>
       </div>

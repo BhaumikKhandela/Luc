@@ -321,9 +321,9 @@ export const getVideoComments = async (id: string) => {
         },
         User: true,
       },
-      orderBy:{
-        createdAt: 'desc'
-      }
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return { status: 200, data: comments };
@@ -477,5 +477,56 @@ export const acceptInvite = async (inviteId: string) => {
     return { status: 400 };
   } catch (error) {
     return { status: 500 };
+  }
+};
+
+export const turnOnTrial = async (videoId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return { status: 404 };
+    }
+
+    const userId = await client.user.findUnique({
+      where: {
+        clerkid: user.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (userId === null) {
+      return { status: 404 };
+    }
+
+    const author = await client.video.findUnique({
+      where: {
+        id: videoId,
+        userId: userId.id,
+      },
+    });
+
+    if (author === null) {
+      return { status: 401, message: "Unauthorized" };
+    }
+
+    await client.user.update({
+      where: {
+        clerkid: user.id,
+      },
+      data: {
+        trial: true,
+      },
+    });
+
+    return { status: 204, message: "Free Trial Activated" };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Internal Server Error",
+      data: null,
+      error: error,
+    };
   }
 };

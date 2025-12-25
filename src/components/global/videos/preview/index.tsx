@@ -26,9 +26,10 @@ type Props = {
 const VideoPreview = ({ videoId }: Props) => {
   const router = useRouter();
 
-  const { data, isLoading } = useQuerydata(["preview-video", videoId], () =>
-    getPreviewVideo(videoId),
-  !!videoId
+  const { data, isLoading } = useQuerydata(
+    ["preview-video", videoId],
+    () => getPreviewVideo(videoId),
+    !!videoId
   );
 
   const typeData = data as VideoProps | undefined;
@@ -36,10 +37,10 @@ const VideoPreview = ({ videoId }: Props) => {
   const status = typeData?.status;
   const author = typeData?.author;
 
-
+  // WIP : Fix tab chnage view increase bug.
   useEffect(() => {
     if (!video || isLoading) return;
-    
+
     const increaseView = async () => await increaseViewCount(videoId);
     const notifyFirstView = async () => await sendEmailForFirstView(videoId);
 
@@ -48,19 +49,18 @@ const VideoPreview = ({ videoId }: Props) => {
       notifyFirstView();
     }
 
-if(!author){
-  console.log("Increase view from client")
-  increaseView();
-}
-  }, [video,videoId,author]);
+    if (!author) {
+      console.log("Increase view from client");
+      increaseView();
+    }
+  }, [video, videoId, author]);
 
-   if (status && status !== 200) {
+  if (status && status !== 200) {
     router.push("/");
     return null;
   }
 
-  if (isLoading || !video){
-
+  if (isLoading || !video) {
     return (
       <div className="grid grid-cols-1 xl:grid-cols-3 lg:py-10 overflow-y-auto gap-5 animate-pulse">
         {/* Left Column Skeleton */}
@@ -73,10 +73,10 @@ if(!author){
               <div className="h-4 bg-gray-700 rounded w-1/6"></div>
             </div>
           </div>
-  
+
           {/* Video Player Skeleton */}
           <div className="w-full aspect-video bg-gray-800 rounded-xl"></div>
-  
+
           {/* Description Skeleton */}
           <div className="flex flex-col text-2xl gap-y-4">
             <div className="h-8 bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
@@ -88,7 +88,7 @@ if(!author){
             </div>
           </div>
         </div>
-  
+
         {/* Right Column Skeleton */}
         <div className="lg:col-span-1 flex flex-col gap-y-16">
           {/* Buttons Skeleton */}
@@ -97,7 +97,7 @@ if(!author){
             <div className="h-10 w-10 bg-gray-700 rounded-full"></div>
             <div className="h-10 w-10 bg-gray-700 rounded-full"></div>
           </div>
-  
+
           {/* Tabs Skeleton */}
           <div className="flex flex-col">
             {/* Tab Triggers */}
@@ -117,9 +117,9 @@ if(!author){
         </div>
       </div>
     );
-  };
+  }
 
-   const daysAgo = Math.floor(
+  const daysAgo = Math.floor(
     (new Date().getTime() - video.createdAt.getTime()) / (24 * 60 * 60 * 1000)
   );
 
@@ -130,14 +130,14 @@ if(!author){
           <div className="flex gap-x-5 items-start justify-between">
             <h2 className="text-white text-4xl font-bold">{video.title}</h2>
             {author ? (
-                        <EditVideo
-                        videoId = {videoId}
-                        title={video.title as string}
-                        description={video.description as string}
-                        />
-                    ): (
-                        <></>
-                    )}
+              <EditVideo
+                videoId={videoId}
+                title={video.title as string}
+                description={video.description as string}
+              />
+            ) : (
+              <></>
+            )}
           </div>
 
           <span className="flex gap-x-3 mt-2">
@@ -201,6 +201,7 @@ if(!author){
               trial={video.User?.trial ?? false}
               plan={video.User?.subscription?.plan ?? "FREE"}
               clerkId={video.User?.clerkid}
+              author={author}
             />
 
             <VideoTranscript transcript={video.summary! as string} />
@@ -208,8 +209,7 @@ if(!author){
               author={video.User?.firstname as string}
               videoId={videoId}
             />
-            <TabsContent value="Activity">
-            </TabsContent>
+            <TabsContent value="Activity"></TabsContent>
           </TabMenu>
         </div>
       </div>
