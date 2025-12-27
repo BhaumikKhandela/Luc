@@ -85,7 +85,7 @@ model Video {
   processing  Boolean     @default(true)
   workSpaceId String?     @db.Uuid
   views       Int         @default(0)
-  summary     String?
+  summary     String?     @default("")
   comments    Comment[]
   Folder      Folder?     @relation(fields: [folderId], references: [id], onDelete: Cascade)
   User        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
