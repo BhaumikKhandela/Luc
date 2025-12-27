@@ -134,6 +134,8 @@ const VideoPreview = ({ videoId }: Props) => {
                 videoId={videoId}
                 title={video.title as string}
                 description={video.description as string}
+                source={video.source}
+                summary={video.summary as string}
               />
             ) : (
               <></>
@@ -166,6 +168,8 @@ const VideoPreview = ({ videoId }: Props) => {
                 videoId={videoId}
                 title={video.title as string}
                 description={video.description as string}
+                 source={video.source}
+                summary={video.summary as string}
               />
             ) : (
               <></>

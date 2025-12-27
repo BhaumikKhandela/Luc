@@ -26,7 +26,7 @@ const AiTools = ({ plan, trial, videoId, clerkId, author }: Props) => {
       <div className="p-5 bg-[#1D1D1D] rounded-xl ">
         <div className="flex flex-col items-center gap-10">
           <div className="">
-            {author && plan === "FREE" ? (
+            {author && plan === "FREE" && trial === false ? (
               <div className="flex items-center justify-between gap-4">
                 <Button
                   className=" mt-2 text-sm"
@@ -58,7 +58,7 @@ const AiTools = ({ plan, trial, videoId, clerkId, author }: Props) => {
           </div>
         </div> */}
 
-          {author && plan === "FREE" ? (
+          {author && plan === "FREE" && trial === false ? (
             <div className="border-[1px] rounded-xl  p-4 gap-4 flex flex-col bg-[#1b0f1b7f]">
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold text-[#a22fe0]"> Opal Ai</h2>
@@ -103,7 +103,14 @@ const AiTools = ({ plan, trial, videoId, clerkId, author }: Props) => {
           ) : plan === "FREE" ? (
             <div>AI features are not enabled yet for this video.</div>
           ) : (
-            <AiChatbot videoId={videoId} />
+            <>
+              {author && (
+                <span className="text-muted-foreground">
+                  Generate Title and Description using AI in edit box.
+                </span>
+              )}
+              <AiChatbot videoId={videoId} />
+            </>
           )}
         </div>
       </div>

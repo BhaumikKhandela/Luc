@@ -76,7 +76,7 @@ export type VideoProps = {
     views: number;
     createdAt: Date;
     processing: boolean;
-    summary: boolean | string | null;
+    summary:  string | null;
   };
   author: boolean;
 };
