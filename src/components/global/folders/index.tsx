@@ -5,12 +5,10 @@ import React from "react";
 import Folder from "./folder";
 import { FaFolder } from "react-icons/fa6";
 import { useQuerydata } from "@/hooks/useQueryData";
-import { getVideosWithNoFolder, getWorkspaceFolders } from "@/app/actions/workspace";
+import { getWorkspaceFolders } from "@/app/actions/workspace";
 import { useMutationDataState } from "@/hooks/useMutationData";
 import { useDispatch } from "react-redux";
 import { FOLDERS } from "@/redux/slices/folders";
-import { VideosProps } from "@/types/index.type";
-import VideoCard from "../videos/video-card";
 
 type Props = {
   workspaceId: string;
