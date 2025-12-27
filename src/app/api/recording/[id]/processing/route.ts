@@ -1,81 +1,74 @@
 import { client } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string}>}){
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const body = await req.json();
+    const { id } = await context.params;
 
-
-    try {
-        const body = await req.json();
-        const { id } = await context.params;
-        
-        const personalworkspaceId = await client.user.findUnique({
-            where:{
-                id
-            },
+    const personalworkspaceId = await client.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        workspace: {
+          where: {
+            type: "PERSONAL",
+          },
+          select: {
+            id: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
+        subscription:{
             select:{
-                workspace: {
-                    where:{
-                        type: 'PERSONAL'
-                    },
-                    select: {
-                        id: true
-                    },
-                    orderBy: {
-                        createdAt: 'asc'
-                    }
-                }
+                plan: true
             }
-        });
-
-        if(!personalworkspaceId){
-            return NextResponse.json({
-                status: 400,
-                message: "Personal workspace not found"
-            })
         }
+      },
 
-    
-        const startProcessingVideo = await client.workSpace.update({
-            where: {
-                id: personalworkspaceId?.workspace[0].id
-            },
-            data: {
-                videos: {
-                    create: {
-                        source: body.filename,
-                        userId: id
-                    }
-                }
-            },
-            select: {
-                User: {
-                    select: {
-                        subscription: {
-                            select: {
-                                plan: true
-                            }
-                        }
-                    }
-                }
-            }
-        });
+    });
 
-        if(startProcessingVideo){
-            return NextResponse.json({
-                status: 200,
-                plan: startProcessingVideo.User?.subscription?.plan,
-
-            })
-        }
-
-        return NextResponse.json({
-            status: 400,
-            message: "Oops! something went wrong"
-        })
-    } catch (error) {
-        console.log('🔴Error in processing video', error);
-        
-        return NextResponse.json({ status: 500, message: 'Internal Server Error' });
+    if (!personalworkspaceId) {
+      return NextResponse.json({
+        status: 400,
+        message: "Personal workspace not found",
+      });
     }
 
+
+    const startProcessingVideo  = await client.video.create({
+        data:{
+            userId: id,
+            workSpaceId:personalworkspaceId?.workspace[0].id ,
+            source: body.filename
+        },
+        select:{
+            id: true
+        }
+    })
+  
+
+    if (startProcessingVideo) {
+      return NextResponse.json({
+        status: 200,
+        plan: personalworkspaceId.subscription?.plan,
+        videoId: startProcessingVideo.id
+      });
+    }
+
+    return NextResponse.json({
+      status: 400,
+      message: "Oops! something went wrong",
+    });
+  } catch (error) {
+    console.log("🔴Error in processing video", error);
+
+    return NextResponse.json({ status: 500, message: "Internal Server Error" });
+  }
 }
