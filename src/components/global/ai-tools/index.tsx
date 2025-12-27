@@ -100,15 +100,10 @@ const AiTools = ({ plan, trial, videoId, clerkId, author }: Props) => {
                 </div>
               </div>
             </div>
-          ) : plan === "FREE" ? (
+          ) : plan === "FREE" && trial !== true ? (
             <div>AI features are not enabled yet for this video.</div>
           ) : (
             <>
-              {author && (
-                <span className="text-muted-foreground">
-                  Generate Title and Description using AI in edit box.
-                </span>
-              )}
               <AiChatbot videoId={videoId} />
             </>
           )}
