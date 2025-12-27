@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useMutationData } from "./useMutationData";
+import { toast } from "sonner";
 
 export const useAiGenerate = (
   source: string,
@@ -15,6 +16,11 @@ export const useAiGenerate = (
           source: source,
         }
       );
+    },
+    "preview-video",
+    () => {},
+    () => {
+        toast.error("Something went wrong. Please try again later.")
     }
   );
 
