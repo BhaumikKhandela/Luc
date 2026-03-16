@@ -24,6 +24,7 @@ export async function GET(
     });
 
     if (userProfile) {
+      console.log("User profile exists");
       return NextResponse.json({
         status: 200,
         user: userProfile,
@@ -32,6 +33,7 @@ export async function GET(
 
     const clerk_Client = await clerkClient();
     const clerkUserInstance = await clerk_Client.users.getUser(id);
+    console.log("Creating user");
     const createUser = await client.user.create({
       data: {
         clerkid: id,
@@ -65,6 +67,7 @@ export async function GET(
     }
     return NextResponse.json({ status: 400 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ status: 500, error: error });
   }
 }
